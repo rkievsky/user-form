@@ -1,5 +1,4 @@
 .idea/
-app/configs/env.php
 uploads/*
 tmp/*
 logs/*

@@ -1,0 +1,6 @@
+nginx/build.sh
+nginx/run.sh
+php-fpm/build.sh
+php-fpm/run.sh
+php-cli/build.sh
+php-cli/run.sh

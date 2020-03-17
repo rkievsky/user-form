@@ -1,0 +1,70 @@
+version: "3.7"
+services:
+  phpfpm:
+    image: test-phpfpm
+    depends_on:
+      - mysql
+    build:
+      args:
+        NGINX_UID: 102
+        NGINX_GID: 102
+        SITE_PATH: /var/www/app/
+        FPM_SOCKET_PATH: /run/php-fpm/
+        CONFIG_PATH: /usr/local/etc/
+        CORES_FOR_COMPILATION: 9
+      context: ./deploy/php-fpm/
+      dockerfile: ./deploy/php-fpm/Dockerfile
+    volumes:
+      - "phpFpmSocket:/run/php-fpm"
+      - type: bind
+        source: ./app
+        target: /var/www/app
+    networks:
+      app-net:
+        aliases: 
+          - phpfpm
+
+  nginx:
+    image: test-nginx
+    depends_on: 
+      - phpfpm
+    build:
+      args:
+        NGINX_UID: 102
+        NGINX_GID: 102
+        SITE_PATH: /var/www/app/
+        FPM_SOCKET_PATH: /run/php-fpm/
+        CONFIG_PATH: /etc/nginx/
+      context: ./deploy/nginx/
+      dockerfile: ./deploy/nginx/Dockerfile
+    volumes:
+      - "phpFpmSocket:/run/php-fpm"
+      - type: bind
+        source: ./app
+        target: /var/www/app
+    ports:
+      - "80:80"
+    networks:
+      app-net:
+        aliases: 
+          - nginx
+
+  mysql:
+    image: mariadb:10.4.12
+    environment:
+      MYSQL_ROOT_PASSWORD: 123
+    volumes:
+      - "dbData:/var/lib/mysql"
+    ports:
+      - "3306:3306"
+    networks:
+      app-net:
+        aliases:
+          - mysql
+
+volumes:
+  phpFpmSocket:
+  dbData:
+
+networks:
+  app-net:

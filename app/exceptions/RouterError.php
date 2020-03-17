@@ -2,7 +2,7 @@
 
 namespace exceptions;
 
-class RouterError extends BaseError
+class RouterError extends BasicError
 {
     const UNKNOWN_ROUTER = 1;
 
@@ -12,7 +12,7 @@ class RouterError extends BaseError
 
         switch ($code) {
             case self::UNKNOWN_ROUTER:
-                $message = "Не удалось определить роутер для криложения класса $additionalMessage";
+                $message = "Не удалось определить роутер для приложения класса $additionalMessage";
         }
 
         return $message;

@@ -2,7 +2,7 @@
 
 namespace exceptions;
 
-abstract class BaseError extends \Exception
+abstract class BasicError extends \Exception
 {
     const UNKNOWN_ERROR_MSG = 'Неизвестная ошибка';
     const UNKNOWN_ERROR_CODE = 0;
