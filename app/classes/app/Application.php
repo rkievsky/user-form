@@ -3,9 +3,12 @@
 namespace classes\app;
 
 use classes\Controllable;
+use classes\routers\IRouter;
 use classes\routers\RouterFactory;
+use exceptions\ControllerError;
+use models\requests\IWebRequest;
 
-abstract class Application
+class Application
 {
     use Controllable;
 
@@ -16,17 +19,32 @@ abstract class Application
 
     private $isWeb = true;
 
+    /** @var IWebRequest $request */
+    private $request;
+
+    /** @var IRouter $router */
+    private $router;
+
+    /**
+     * @return mixed
+     * @throws \exceptions\BasicError
+     */
+    private function callAction()
+    {
+        $controller = $this->router->getController();
+        $method = $this->router->getMethod();
+        $this->request = $controller->collectRequest($method);
+        $this->request->validate();
+
+        return $controller->$method($this->request);
+    }
+
     protected function getBaseConfigName()
     {
         return
             APP_ROOT . DIRECTORY_SEPARATOR
             . self::APP_CONFIGS_PATH . DIRECTORY_SEPARATOR
             . 'env.php';
-    }
-
-    public function isWeb()
-    {
-        return $this->isWeb;
     }
 
     public static function create($isWeb = true) : Application
@@ -49,14 +67,24 @@ abstract class Application
     {
         $this->isWeb = $isWeb;
         $this->loadConfig($this->getBaseConfigName());
+        $this->router = RouterFactory::create($this->isWeb());
+    }
+
+    public function isWeb()
+    {
+        return $this->isWeb;
     }
 
     public function run() : int
     {
-        $router = RouterFactory::create($this->isWeb());
-        $controller = $router->getController();
-        $method = $router->getMethod();
+        try {
+            $httpCode = $this->callAction();
+//        } catch (ValidationError $e) {
+//        } catch (ControllerError $e) {
+        } catch (\Throwable $e) {
+            $httpCode = 500;
+        }
 
+        return $httpCode;
     }
-
 }

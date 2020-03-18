@@ -2,9 +2,11 @@
 
 namespace classes\routers;
 
+use controllers\BasicController;
+
 interface IRouter
 {
-    public function getController();
+    public function getController() : BasicController;
 
-    public function getMethod();
+    public function getMethod() : string;
 }
